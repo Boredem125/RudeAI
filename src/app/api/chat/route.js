@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+
 
 const systemPrompt = [
  
