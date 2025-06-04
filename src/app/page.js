@@ -1,38 +1,47 @@
-'use client'
+'use client';
 import { useState, useRef } from 'react';
 import { Stack, TextField, Button, Typography, Paper, Avatar } from '@mui/material';
 
-
 export default function Home() {
-  const [messages, setMessages] = useState([{ // Array of messages
-    role: 'assistant',
-    content: "Can't even do this on your own? Fine incapable human, I am your savior 😂",
-    backgroundColor: 'white', // Navy blue for assistant
-    color: '#000', // White text for assistant
-    avatar: 'https://robohash.org/example?set=set4', // Path to bot's avatar image
-  }]);
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: "Can't even do this on your own? Fine incapable human, I am your savior 😂",
+      backgroundColor: 'white',
+      color: '#000',
+      avatar: 'https://robohash.org/example?set=set4',
+    },
+  ]);
 
   const [message, setMessage] = useState('');
-  const messageRef = useRef(null); // Reference to the TextField element
-
- 
+  const messageRef = useRef(null);
 
   const sendMessage = async () => {
-    if (!message.trim()) return;  // Don't send empty messages
+    if (!message.trim()) return;
 
     setMessages((messages) => [
       ...messages,
-      { role: 'user', content: message, backgroundColor: '#75bbfd', color: '#000', avatar: 'https://api.dicebear.com/9.x/pixel-art/svg?seed=Jane' }, // Random user avatar
-      { role: 'assistant', content: '', avatar: 'https://api.dicebear.com/9.x/bottts/png' }, // Add bot avatar here
+      {
+        role: 'user',
+        content: message,
+        backgroundColor: '#75bbfd',
+        color: '#000',
+        avatar: 'https://api.dicebear.com/9.x/pixel-art/svg?seed=Jane',
+      },
+      {
+        role: 'assistant',
+        content: '',
+        avatar: 'https://api.dicebear.com/9.x/bottts/png',
+        backgroundColor: 'white',
+        color: '#000',
+      },
     ]);
     setMessage('');
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([...messages, { role: 'user', content: message }]),
       });
 
@@ -47,6 +56,7 @@ export default function Home() {
         const { done, value } = await reader.read();
         if (done) break;
         const text = decoder.decode(value, { stream: true });
+
         setMessages((messages) => {
           let lastMessage = messages[messages.length - 1];
           let otherMessages = messages.slice(0, messages.length - 1);
@@ -60,22 +70,35 @@ export default function Home() {
       console.error('Error:', error);
       setMessages((messages) => [
         ...messages,
-        { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later.", backgroundColor: '#1976D2', color: '#fff', avatar: 'https://robohash.org/example?set=set4' }, // Set error message color
+        {
+          role: 'assistant',
+          content: "I'm sorry, but I encountered an error. Please try again later.",
+          backgroundColor: '#1976D2',
+          color: '#fff',
+          avatar: 'https://robohash.org/example?set=set4',
+        },
       ]);
     }
   };
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       sendMessage();
-    
+    }
   };
 
   const endChat = () => {
-    setMessages([{ role: 'assistant', content: 'This conversation is over. Farewell, simpleton. 😂', backgroundColor: '#1976D2', color: '#fff', avatar: 'https://api.dicebear.com/9.x/pixel-art/svg?seed=Jane' }]); // Set end chat message color
+    setMessages([
+      {
+        role: 'assistant',
+        content: 'This conversation is over. Farewell, simpleton. 😂',
+        backgroundColor: '#1976D2',
+        color: '#fff',
+        avatar: 'https://api.dicebear.com/9.x/pixel-art/svg?seed=Jane',
+      },
+    ]);
   };
-
- 
 
   return (
     <Stack
@@ -84,11 +107,30 @@ export default function Home() {
       spacing={2}
       sx={{ backgroundColor: '#000', color: 'red', padding: 2 }}
     >
-      <Stack direction="column" width="100%" height="calc(100% - 64px)" border="1px solid #fff" p={2} spacing={3} sx={{ borderRadius: 16, boxShadow: 2, overflow: 'auto' }}>
-        <Typography variant="h6" sx={{ textAlign: 'center', mb: 2, color: 'red', fontSize: '2rem' }}>RudeAI</Typography>
+      <Stack
+        direction="column"
+        width="100%"
+        height="calc(100% - 64px)"
+        border="1px solid #fff"
+        p={2}
+        spacing={3}
+        sx={{ borderRadius: 16, boxShadow: 2, overflow: 'auto' }}
+      >
+        <Typography
+          variant="h6"
+          sx={{ textAlign: 'center', mb: 2, color: 'red', fontSize: '2rem' }}
+        >
+          RudeAI
+        </Typography>
+
         <Stack direction="column" spacing={2} flexGrow={1} overflow="auto" maxHeight="100%">
           {messages.map((message, index) => (
-            <Stack key={index} direction={message.role === 'assistant' ? 'row' : 'row-reverse'} spacing={2} alignItems="flex-end">
+            <Stack
+              key={index}
+              direction={message.role === 'assistant' ? 'row' : 'row-reverse'}
+              spacing={2}
+              alignItems="flex-end"
+            >
               {message.role === 'assistant' && (
                 <Avatar src={message.avatar} alt="Bot Avatar" sx={{ width: 56, height: 56 }} />
               )}
@@ -97,7 +139,7 @@ export default function Home() {
                 sx={{
                   backgroundColor: message.backgroundColor,
                   color: message.color,
-                  borderRadius: message.role === 'assistant' ? 8 : 16, // Rounded corners for assistant, speech bubble for user
+                  borderRadius: message.role === 'assistant' ? 8 : 16,
                   p: 3,
                   display: 'inline-block',
                   maxWidth: '70%',
@@ -107,13 +149,18 @@ export default function Home() {
                 {message.content}
               </Paper>
               {message.role === 'user' && (
-                <Avatar src="https://api.dicebear.com/9.x/pixel-art/svg?seed=Jane" alt="User Avatar" sx={{ width: 56, height: 56 }} />
+                <Avatar
+                  src="https://api.dicebear.com/9.x/pixel-art/svg?seed=Jane"
+                  alt="User Avatar"
+                  sx={{ width: 56, height: 56 }}
+                />
               )}
             </Stack>
           ))}
         </Stack>
       </Stack>
-      <Stack direction="row" spacing={2} alignItems="center" p={2} sx={{ position: 'relative' }}>
+
+      <Stack direction="row" spacing={2} alignItems="center" p={2}>
         <TextField
           label="Your Message"
           fullWidth
@@ -121,15 +168,19 @@ export default function Home() {
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           inputRef={messageRef}
-          sx={{ borderRadius: 8, color: '#000', backgroundColor: '#fff', flexGrow: 1 }} // Set message box background to white
+          sx={{
+            borderRadius: 8,
+            color: '#000',
+            backgroundColor: '#fff',
+            flexGrow: 1,
+          }}
         />
         <Button variant="contained" onClick={sendMessage}>
           SEND
         </Button>
         <Button variant="contained" color="error" onClick={endChat}>
           END CHAT
-        
-        )}
+        </Button>
       </Stack>
     </Stack>
   );
