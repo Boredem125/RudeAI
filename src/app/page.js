@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef } from 'react';
 import { Stack, TextField, Button, Typography, Paper, Avatar } from '@mui/material';
-import Picker from 'emoji-mart'; // Corrected import
+
 
 export default function Home() {
   const [messages, setMessages] = useState([{ // Array of messages
@@ -15,7 +15,7 @@ export default function Home() {
   const [message, setMessage] = useState('');
   const messageRef = useRef(null); // Reference to the TextField element
 
-  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false); // State for emoji picker
+ 
 
   const sendMessage = async () => {
     if (!message.trim()) return;  // Don't send empty messages
@@ -68,20 +68,14 @@ export default function Home() {
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       sendMessage();
-    } else if (event.key === '/' && !event.ctrlKey && !event.metaKey) {
-      // Open emoji picker on slash key press (optional)
-      setIsEmojiPickerOpen(true);
-    }
+    
   };
 
   const endChat = () => {
     setMessages([{ role: 'assistant', content: 'This conversation is over. Farewell, simpleton. 😂', backgroundColor: '#1976D2', color: '#fff', avatar: 'https://api.dicebear.com/9.x/pixel-art/svg?seed=Jane' }]); // Set end chat message color
   };
 
-  const handleEmojiSelect = (emoji) => {
-    setMessage(message + emoji.native); // Add selected emoji to message
-    setIsEmojiPickerOpen(false); // Close emoji picker on selection
-  };
+ 
 
   return (
     <Stack
@@ -134,15 +128,7 @@ export default function Home() {
         </Button>
         <Button variant="contained" color="error" onClick={endChat}>
           END CHAT
-        </Button>
-        {isEmojiPickerOpen && (
-          <Picker
-            onSelect={handleEmojiSelect}
-            set='native'
-            title='Pick your emoji'
-            theme='dark'
-            style={{ position: 'absolute', bottom: '100%', right: 0, zIndex: 2 }} // Position the emoji picker
-          />
+        
         )}
       </Stack>
     </Stack>
