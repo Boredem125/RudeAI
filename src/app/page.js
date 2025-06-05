@@ -1,6 +1,5 @@
 'use client';
 import { useState, useRef } from 'react';
-import { Stack, TextField, Button, Typography, Paper, Avatar } from '@mui/material';
 
 export default function Home() {
   const [messages, setMessages] = useState([
@@ -45,9 +44,7 @@ export default function Home() {
         body: JSON.stringify([...messages, { role: 'user', content: message }]),
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -58,33 +55,21 @@ export default function Home() {
         const text = decoder.decode(value, { stream: true });
 
         setMessages((messages) => {
-          let lastMessage = messages[messages.length - 1];
-          let otherMessages = messages.slice(0, messages.length - 1);
-          return [
-            ...otherMessages,
-            { ...lastMessage, content: lastMessage.content + text },
-          ];
+          let last = messages[messages.length - 1];
+          return [...messages.slice(0, -1), { ...last, content: last.content + text }];
         });
       }
     } catch (error) {
-      console.error('Error:', error);
       setMessages((messages) => [
         ...messages,
         {
           role: 'assistant',
-          content: "I'm sorry, but I encountered an error. Please try again later.",
+          content: "I'm sorry, I encountered an error. Try again later.",
           backgroundColor: '#1976D2',
           color: '#fff',
           avatar: 'https://robohash.org/example?set=set4',
         },
       ]);
-    }
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage();
     }
   };
 
@@ -100,88 +85,52 @@ export default function Home() {
     ]);
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  };
+
   return (
-    <Stack
-      width="100vw"
-      height="100vh"
-      spacing={2}
-      sx={{ backgroundColor: '#000', color: 'red', padding: 2 }}
-    >
-      <Stack
-        direction="column"
-        width="100%"
-        height="calc(100% - 64px)"
-        border="1px solid #fff"
-        p={2}
-        spacing={3}
-        sx={{ borderRadius: 16, boxShadow: 2, overflow: 'auto' }}
-      >
-        <Typography
-          variant="h6"
-          sx={{ textAlign: 'center', mb: 2, color: 'red', fontSize: '2rem' }}
-        >
-          RudeAI
-        </Typography>
+    <div style={{ width: '100vw', height: '100vh', backgroundColor: '#000', color: 'red', padding: 20, display: 'flex', flexDirection: 'column' }}>
+      <h1 style={{ textAlign: 'center', fontSize: '2rem', color: 'red' }}>RudeAI</h1>
 
-        <Stack direction="column" spacing={2} flexGrow={1} overflow="auto" maxHeight="100%">
-          {messages.map((message, index) => (
-            <Stack
-              key={index}
-              direction={message.role === 'assistant' ? 'row' : 'row-reverse'}
-              spacing={2}
-              alignItems="flex-end"
-            >
-              {message.role === 'assistant' && (
-                <Avatar src={message.avatar} alt="Bot Avatar" sx={{ width: 56, height: 56 }} />
-              )}
-              <Paper
-                elevation={3}
-                sx={{
-                  backgroundColor: message.backgroundColor,
-                  color: message.color,
-                  borderRadius: message.role === 'assistant' ? 8 : 16,
-                  p: 3,
-                  display: 'inline-block',
-                  maxWidth: '70%',
-                  boxShadow: 1,
-                }}
-              >
-                {message.content}
-              </Paper>
-              {message.role === 'user' && (
-                <Avatar
-                  src="https://api.dicebear.com/9.x/pixel-art/svg?seed=Jane"
-                  alt="User Avatar"
-                  sx={{ width: 56, height: 56 }}
-                />
-              )}
-            </Stack>
-          ))}
-        </Stack>
-      </Stack>
+      <div style={{ flexGrow: 1, overflowY: 'auto', border: '1px solid white', padding: 16, borderRadius: 12 }}>
+        {messages.map((msg, idx) => (
+          <div key={idx} style={{
+            display: 'flex',
+            flexDirection: msg.role === 'assistant' ? 'row' : 'row-reverse',
+            alignItems: 'flex-end',
+            marginBottom: 16,
+          }}>
+            <img src={msg.avatar} alt="avatar" width={50} height={50} style={{ borderRadius: '50%' }} />
+            <div style={{
+              backgroundColor: msg.backgroundColor,
+              color: msg.color,
+              padding: '12px 16px',
+              borderRadius: 12,
+              marginLeft: msg.role === 'assistant' ? 8 : 0,
+              marginRight: msg.role === 'user' ? 8 : 0,
+              maxWidth: '70%',
+            }}>
+              {msg.content}
+            </div>
+          </div>
+        ))}
+      </div>
 
-      <Stack direction="row" spacing={2} alignItems="center" p={2}>
-        <TextField
-          label="Your Message"
-          fullWidth
+      <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+        <input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
-          inputRef={messageRef}
-          sx={{
-            borderRadius: 8,
-            color: '#000',
-            backgroundColor: '#fff',
-            flexGrow: 1,
-          }}
+          placeholder="Your Message"
+          style={{ flexGrow: 1, padding: 12, borderRadius: 8 }}
         />
-        <Button variant="contained" onClick={sendMessage}>
-          SEND
-        </Button>
-        <Button variant="contained" color="error" onClick={endChat}>
-          END CHAT
-        </Button>
-      </Stack>
-    </Stack>
+        <button onClick={sendMessage} style={{ padding: '12px 16px' }}>SEND</button>
+        <button onClick={endChat} style={{ padding: '12px 16px', backgroundColor: 'red', color: 'white' }}>END CHAT</button>
+      </div>
+    </div>
   );
 }
